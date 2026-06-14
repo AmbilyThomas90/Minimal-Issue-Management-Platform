@@ -3,7 +3,7 @@ import axios from 'axios';
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
 });
-
+console.log('API Base URL:', api.defaults.baseURL);
 export type Status = 'open' | 'in_progress' | 'resolved' | 'closed';
 export type Priority = 'low' | 'medium' | 'high' | 'critical';
 
