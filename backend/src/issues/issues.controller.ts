@@ -13,7 +13,7 @@ import { IssuesService } from './issues.service';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
 
-@Controller('api/issues')
+@Controller('issues')
 export class IssuesController {
   constructor(private readonly issuesService: IssuesService) {}
 
