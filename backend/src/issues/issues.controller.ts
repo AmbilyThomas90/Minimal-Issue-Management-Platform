@@ -65,4 +65,9 @@ export class IssuesController {
   getComments(@Param('id') id: string) {
     return this.issuesService.getComments(id);
   }
+  // Analyze issue (bonus feature)
+  @Post(':id/analysis')
+analyzeIssue(@Param('id') id: string) {
+  return this.issuesService.analyzeIssue(id);
+}
 }

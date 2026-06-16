@@ -107,4 +107,48 @@ export class IssuesService {
       .where(eq(comments.issueId, issueId))
       .orderBy(desc(comments.createdAt));
   }
+// 🔹 ANALYZE ISSUE
+async analyzeIssue(id: string) {
+  try {
+    console.log('Analyze called for ID:', id);
+
+    const result = await this.db.db
+      .select()
+      .from(issues)
+      .where(eq(issues.id, id));
+
+    const issue = result[0];
+
+    console.log('Issue:', issue);
+
+    if (!issue) {
+      throw new NotFoundException(`Issue ${id} not found`);
+    }
+
+    // Temporary AI Analysis Response
+    // Replace this later with Gemini API integration
+    return {
+      issueId: issue.id,
+      title: issue.title,
+      analysis: {
+        severity: 'High',
+        possibleCauses: [
+          'Backend API error',
+          'Database connection issue',
+          'Validation failure',
+        ],
+        suggestedFixes: [
+          'Check backend logs',
+          'Verify database connection',
+          'Review validation rules',
+        ],
+        priority: issue.priority,
+      },
+    };
+  } catch (error) {
+    console.error('Analyze Error:', error);
+    throw error;
+  }
+}
+
 }
