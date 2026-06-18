@@ -6,7 +6,6 @@ import { useParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { ArrowLeft, Sparkles, MessageSquare, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import ReactMarkdown from 'react-markdown';
 
 export default function IssuePage() {
   const { id } = useParams<{ id: string }>();
@@ -45,11 +44,16 @@ export default function IssuePage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['issue', id] }),
   });
 
-  if (!issue) return <div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>;
+  if (!issue) return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
+
         {/* Back button */}
         <Link href="/" className="flex items-center gap-2 text-gray-500 hover:text-gray-800 mb-6 text-sm">
           <ArrowLeft size={16} /> Back to Issues
@@ -75,14 +79,19 @@ export default function IssuePage() {
               <option value="resolved">Resolved</option>
               <option value="closed">Closed</option>
             </select>
-            <span className="text-sm text-gray-500 py-1">Priority: <strong>{issue.priority}</strong></span>
+            <span className="text-sm text-gray-500 py-1">
+              Priority: <strong>{issue.priority}</strong>
+            </span>
           </div>
 
           <p className="text-gray-600 mt-4 leading-relaxed">{issue.description}</p>
-          <p className="text-xs text-gray-400 mt-4">Created {new Date(issue.createdAt).toLocaleString()}</p>
+          <p className="text-xs text-gray-400 mt-4">
+            Created {new Date(issue.createdAt).toLocaleString()}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
           {/* Comments */}
           <div className="bg-white rounded-2xl border p-5">
             <div className="flex items-center gap-2 mb-4">
@@ -91,12 +100,16 @@ export default function IssuePage() {
             </div>
 
             <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
-              {comments.length === 0 && <p className="text-sm text-gray-400">No comments yet</p>}
+              {comments.length === 0 && (
+                <p className="text-sm text-gray-400">No comments yet</p>
+              )}
               {comments.map(c => (
                 <div key={c.id} className="bg-gray-50 rounded-lg p-3">
                   <p className="text-xs font-medium text-blue-600">{c.author}</p>
                   <p className="text-sm text-gray-700 mt-1">{c.content}</p>
-                  <p className="text-xs text-gray-400 mt-1">{new Date(c.createdAt).toLocaleString()}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(c.createdAt).toLocaleString()}
+                  </p>
                 </div>
               ))}
             </div>
@@ -127,35 +140,57 @@ export default function IssuePage() {
 
           {/* AI Analysis */}
           <div className="bg-white rounded-2xl border p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Sparkles size={18} className="text-purple-500" />
-                <h2 className="font-semibold">AI Analysis</h2>
-              </div>
-              <button
-                onClick={() => generateAnalysis.mutate()}
-                disabled={generateAnalysis.isPending}
-                className="flex items-center gap-1 bg-purple-600 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-purple-700 disabled:opacity-60"
-              >
-                <Sparkles size={12} />
-                {generateAnalysis.isPending ? 'Analyzing...' : 'Generate Analysis'}
-              </button>
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles size={18} className="text-purple-500" />
+              <h2 className="font-semibold">AI Analysis</h2>
             </div>
 
-            <div className="max-h-80 overflow-y-auto space-y-4">
-              {analyses.length === 0 && (
-                <p className="text-sm text-gray-400">No analysis yet. Click "Generate Analysis" to get AI insights.</p>
-              )}
+            {/* Analyze Button */}
+            <button
+              onClick={() => generateAnalysis.mutate()}
+              disabled={generateAnalysis.isPending}
+              className="w-full flex items-center justify-center gap-2 bg-purple-600 text-white py-3 px-4 rounded-xl hover:bg-purple-700 disabled:opacity-60 transition mb-4"
+            >
+              <Sparkles size={16} />
+              {generateAnalysis.isPending ? 'Analyzing issue...' : 'Analyze issue with AI'}
+            </button>
+
+            {/* Loading State */}
+            {generateAnalysis.isPending && (
+              <div className="flex items-center justify-center py-6">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+                <span className="ml-3 text-purple-600 text-sm">Generating AI insights...</span>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {analyses.length === 0 && !generateAnalysis.isPending && (
+              <div className="text-center py-6">
+                <Sparkles size={28} className="text-purple-200 mx-auto mb-2" />
+                <p className="text-sm text-gray-400">
+                  Click the button above to get AI insights for this issue
+                </p>
+              </div>
+            )}
+
+            {/* Analysis Results */}
+            <div className="space-y-4 max-h-96 overflow-y-auto">
               {analyses.map(a => (
-                <div key={a.id} className="bg-purple-50 rounded-xl p-4">
-                  <p className="text-xs text-purple-400 mb-2">{new Date(a.createdAt).toLocaleString()}</p>
-                  <div className="prose prose-sm prose-purple max-w-none text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
+                <div key={a.id} className="bg-purple-50 rounded-xl p-4 border border-purple-100">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Sparkles size={12} className="text-purple-400" />
+                    <p className="text-xs font-medium text-purple-400">
+                      Generated {new Date(a.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
                     {a.content}
                   </div>
                 </div>
               ))}
             </div>
           </div>
+
         </div>
       </div>
     </div>
